@@ -1,8 +1,9 @@
 import { createStore } from 'redux';
 import rootReducer from '../reducers';
+import logRemotely from './logRemotely';
 
 export default function configureStore(initialState) {
-  const store = createStore(rootReducer, initialState);
+  const store = logRemotely(createStore)(rootReducer, initialState);
 
   if (module.hot) {
     // Enable Webpack hot module replacement for reducers
