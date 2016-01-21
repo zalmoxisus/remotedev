@@ -1,5 +1,6 @@
 import ImmutableStore from 'alt/utils/ImmutableUtil';
 import { List }       from 'immutable';
+import RemoteDev      from 'remotedev';
 
 import AltInstance    from 'lib/AltInstance';
 import Actions        from 'actions/TodoList';
@@ -11,6 +12,10 @@ class TodoListStore {
     this.bindListeners({
       add: addTask,
       remove: removeTask
+    });
+
+    this.on('afterEach', payload => {
+      RemoteDev.send(payload.details.id, payload.data);
     });
 
     this.state = List();

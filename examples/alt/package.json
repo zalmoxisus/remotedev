@@ -16,7 +16,8 @@
     "node-uuid": "^1.4.3",
     "normalize.css": "~3.0.3",
     "react": "~0.13.1",
-    "react-bootstrap": "^0.23.7"
+    "react-bootstrap": "^0.23.7",
+    "remotedev": "0.0.4"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
