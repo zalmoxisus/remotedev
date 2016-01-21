@@ -1,6 +1,7 @@
 import Rx from 'rx';
 import update from 'react-addons-update';
 import Immutable from 'immutable';
+import RemoteDev from 'remotedev';
 
 import todoActions from '../actions/todo';
 import todoRecord from '../utils/todoRecord';
@@ -25,6 +26,13 @@ subject.map(store => store.get('todos'))
   .distinctUntilChanged()
   .subscribe(persist.set);
 
+function dispatch(action) {
+  subject.onNext(action.state);
+  RemoteDev.send(action.type, action.state);
+}
+
+// subject.subscribe(data => { RemoteDev.send('', action.state); });
+
 todoActions.subjects.add.subscribe((text) => {
   store = store.updateIn(['todos'], (todos) => {
     return todos.push(todoRecord()({
@@ -32,7 +40,7 @@ todoActions.subjects.add.subscribe((text) => {
     }));
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'add', state: store });
 });
 
 todoActions.subjects.delete.subscribe((id) => {
@@ -40,7 +48,7 @@ todoActions.subjects.delete.subscribe((id) => {
     return todos.filter(todo => todo.id !== id);
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'delete', state: store });
 });
 
 todoActions.subjects.update.subscribe((data) => {
@@ -52,7 +60,7 @@ todoActions.subjects.update.subscribe((data) => {
     });
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'update', state: store });
 });
 
 todoActions.subjects.toggleEdit.subscribe((id) => {
@@ -64,7 +72,7 @@ todoActions.subjects.toggleEdit.subscribe((id) => {
     });
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'toggleEdit', state: store });
 });
 
 todoActions.subjects.toggleCompleted.subscribe((data) => {
@@ -76,7 +84,7 @@ todoActions.subjects.toggleCompleted.subscribe((data) => {
     })
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'toggleCompleted', state: store });
 });
 
 todoActions.subjects.toggleAll.subscribe((allCompleted) => {
@@ -86,7 +94,7 @@ todoActions.subjects.toggleAll.subscribe((allCompleted) => {
     });
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'toggleAll', state: store });
 });
 
 todoActions.subjects.clearCompleted.subscribe(() => {
@@ -94,7 +102,7 @@ todoActions.subjects.clearCompleted.subscribe(() => {
     return todos.filter(todo => !todo.completed);
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'clearCompleted', state: store });
 });
 
 todoActions.subjects.filter.subscribe((filter) => {
@@ -102,7 +110,7 @@ todoActions.subjects.filter.subscribe((filter) => {
     return filter;
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'filter', state: store });
 });
 
 export default { subject };
