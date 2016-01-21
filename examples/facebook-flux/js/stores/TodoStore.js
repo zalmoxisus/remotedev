@@ -13,6 +13,7 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
 var TodoConstants = require('../constants/TodoConstants');
 var assign = require('object-assign');
+var RemoteDev = require('remotedev');
 
 var CHANGE_EVENT = 'change';
 
@@ -119,6 +120,8 @@ var TodoStore = assign({}, EventEmitter.prototype, {
 // Register callback to handle all updates
 AppDispatcher.register(function(action) {
   var text;
+
+  RemoteDev.send(action.actionType, action);
 
   switch(action.actionType) {
     case TodoConstants.TODO_CREATE:
