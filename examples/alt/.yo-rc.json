@@ -1,0 +1,8 @@
+{
+  "generator-react-webpack": {
+    "app-name": "reactImmutableAltTodo",
+    "architecture": false,
+    "styles-language": "less",
+    "component-suffix": "js"
+  }
+}
