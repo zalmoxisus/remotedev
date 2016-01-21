@@ -1,0 +1,32 @@
+{
+  "name": "rxjs-react-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "watchify app/main.jsx -o bundle/bundle.js -v"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify"
+      ]
+    ]
+  },
+  "author": "Mauricio Soares",
+  "license": "MIT",
+  "devDependencies": {
+    "babelify": "^7.2.0",
+    "browserify": "^11.1.0",
+    "watchify": "^3.4.0"
+  },
+  "dependencies": {
+    "classnames": "^2.1.5",
+    "immutable": "^3.7.5",
+    "node-uuid": "^1.4.3",
+    "react": "^0.14.0",
+    "react-addons-update": "^0.14.0",
+    "react-dom": "^0.14.0",
+    "rx": "^3.1.2"
+  }
+}
