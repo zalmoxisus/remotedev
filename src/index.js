@@ -1,1 +1,1 @@
-module.exports = require('./devTools').default;
+module.exports = require('./devTools');
