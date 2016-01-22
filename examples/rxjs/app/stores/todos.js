@@ -10,15 +10,20 @@ import persist from '../utils/persist';
 
 let persistedData = persist.get();
 
-let store = Immutable.fromJS({
+function toImmutable(data) {
+  return Immutable.fromJS(data, (key, value) => {
+    // in case it was a record with an ID
+    if(value.get('id')) return todoRecord()(value);
+
+    return Immutable.Iterable.isIndexed(value) ? value.toList() : value.toOrderedMap();
+  });
+}
+let initialSatate = {
   filter: null,
   todos: (persistedData) ? persistedData : []
-}, (key, value) => {
-  // in case it was a record with an ID
-  if(value.get('id')) return todoRecord()(value);
-
-  return Immutable.Iterable.isIndexed(value) ? value.toList() : value.toOrderedMap();
-});
+};
+let store = toImmutable(initialSatate);
+RemoteDev.init(initialSatate);
 
 let subject = new Rx.BehaviorSubject(store);
 
@@ -28,8 +33,12 @@ subject.map(store => store.get('todos'))
 
 function dispatch(action) {
   subject.onNext(action.state);
-  RemoteDev.send(action.type, action.state);
+  RemoteDev.send(action.type, action.state); // Send changes to remote monitor
 }
+
+RemoteDev.subscribe(state => {
+  subject.onNext(toImmutable(state));
+});
 
 // subject.subscribe(data => { RemoteDev.send('', action.state); });
 
