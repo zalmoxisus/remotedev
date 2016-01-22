@@ -16,3 +16,5 @@ export function send(action, state, options = {}) {
 export function init(state, options) {
   send(undefined, state, options);
 }
+
+export default { init, send };
