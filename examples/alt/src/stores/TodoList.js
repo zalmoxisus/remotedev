@@ -1,5 +1,5 @@
 import ImmutableStore from 'alt/utils/ImmutableUtil';
-import { List }       from 'immutable';
+import { List, fromJS }       from 'immutable';
 import RemoteDev      from 'remotedev';
 
 import AltInstance    from 'lib/AltInstance';
@@ -14,8 +14,15 @@ class TodoListStore {
       remove: removeTask
     });
 
+    // Initial state is {}
+    RemoteDev.init([]);
+    // Subscribe to RemoteDev
+    RemoteDev.subscribe(state => {
+      this.setState(fromJS(state));
+    });
+    // Send changes to the remote monitor
     this.on('afterEach', payload => {
-      RemoteDev.send(payload.details.id, payload.data);
+      RemoteDev.send(payload.details.id, this.state);
     });
 
     this.state = List();
