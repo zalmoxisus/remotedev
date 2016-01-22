@@ -27,7 +27,7 @@ function connect(options) {
   });
 }
 
-export function start(options = {}) {
+export function start(options) {
   if (options) {
     instanceName = options.name;
   }
