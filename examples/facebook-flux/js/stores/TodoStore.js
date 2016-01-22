@@ -117,11 +117,17 @@ var TodoStore = assign({}, EventEmitter.prototype, {
   }
 });
 
+// Initial state is {}
+RemoteDev.init({});
+// Subscribe to RemoteDev
+RemoteDev.subscribe(state => {
+  _todos = state;
+  TodoStore.emitChange();
+});
+
 // Register callback to handle all updates
 AppDispatcher.register(function(action) {
   var text;
-
-  RemoteDev.send(action.actionType, action);
 
   switch(action.actionType) {
     case TodoConstants.TODO_CREATE:
@@ -172,6 +178,9 @@ AppDispatcher.register(function(action) {
     default:
       // no op
   }
+
+  // Send to the remote monitor
+  RemoteDev.send(action, _todos);
 });
 
 module.exports = TodoStore;
