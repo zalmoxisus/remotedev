@@ -3,6 +3,8 @@ RemoteDev
 
 Monitoring flux app's actions along with states to a remote monitor. Meant to be used even in production with any flux architecture for web, universal, React Native, hybrid, desktop and server side apps.
 
+![Demo](demo.gif)
+
 ### Installation
 
 ##### NPM
@@ -14,6 +16,25 @@ npm install --save-dev remotedev
 ```
 <script src="https://npmcdn.com/remotedev/dist/remotedev.min.js"></script>
 ```
+
+### Usage
+
+```js
+// Send initial state to the monitor
+RemoteDev.init({});
+
+// Subscribe to RemoteDev to change state (for time travelling)
+RemoteDev.subscribe(state => {
+  this.setState(state);
+});
+
+// Send changes to the remote monitor
+this.on('afterEach', action => {
+  RemoteDev.send(action, this.state);
+});
+```
+
+See [the examples for different flux architectures](https://github.com/zalmoxisus/remotedev/tree/master/examples).
 
 ### Remote monitoring
 
