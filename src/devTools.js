@@ -33,18 +33,29 @@ export function start(options = {}) {
   }
   connect(options && options.port ? options : socketOptions);
 }
+
+function transformAction(action) {
+  if (typeof action === 'object') {
+    if (!action.timestamp) action.timestamp = Date.now();
+    if (!action.type) action.type = action.id || action.actionType || '';
+    return action;
+  }
+  if (typeof action === 'string') return { type: action, timestamp: Date.now() };
+  return '';
+}
+
 export function send(action, state, options) {
   start(options);
   setTimeout(() => {
     const message = {
       payload: state ? stringify(state) : '',
-      action: action ? stringify(action) : '',
+      action: transformAction(action),
       type: action !== undefined ? 'ACTION' : 'INIT',
       nextActionId: nextActionId || '',
       id: socket.id,
       name: instanceName
     };
-    if (action) nextActionId++;
+    nextActionId++;
     socket.emit(socket.id ? 'log' : 'log-noid', message);
   }, 0);
 }
@@ -59,10 +70,10 @@ export function subscribe(listener, options) {
   };
 }
 
-export function init(state, options) {
+export function init(state = {}, options) {
   nextActionId = 1;
   start(options);
   send(undefined, state, options);
 }
 
-export default { init, send };
+export default { init, send, subscribe };
