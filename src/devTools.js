@@ -1,4 +1,4 @@
-import { stringify } from 'jsan';
+import { stringify, parse } from 'jsan';
 import socketCluster from 'socketcluster-client';
 import { socketOptions } from './constants';
 
@@ -6,10 +6,12 @@ let instanceName;
 let socket;
 let channel;
 let nextActionId = 1;
+let listeners = [];
 
 function handleMessages(message) {
-  if (message.type === 'DISPATCH') {
-    // Dispatch an action
+  if (message.type === 'DISPATCH' && message.state) {
+    const parsedState = parse(message.state);
+    listeners.forEach(listener => listener(parsedState));
   }
 }
 
@@ -45,6 +47,16 @@ export function send(action, state, options) {
     if (action) nextActionId++;
     socket.emit(socket.id ? 'log' : 'log-noid', message);
   }, 0);
+}
+
+export function subscribe(listener, options) {
+  start(options);
+  listeners.push(listener);
+
+  return function unsubscribe() {
+    const index = listeners.indexOf(listener);
+    listeners.splice(index, 1);
+  };
 }
 
 export function init(state, options) {
