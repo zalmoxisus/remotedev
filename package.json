@@ -51,6 +51,8 @@
     "webpack": "^1.11.0"
   },
   "dependencies": {
-    "jsan": "^2.0.4"
+    "jsan": "^2.0.4",
+    "querystring": "^0.2.0",
+    "socketcluster-client": "^4.1.6"
   }
 }
