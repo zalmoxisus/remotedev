@@ -21,7 +21,7 @@
             }
             foundItem.label = newLabel;
             this.updateList(this.list);
-            Remotedev.send('EditItem', { itemKey: itemKey, newLabel: newLabel });
+            RemoteDev.send('EditItem', this.list);
         },
         onAddItem: function(label) {
             this.updateList([{
@@ -30,13 +30,13 @@
                 isComplete: false,
                 label: label
             }].concat(this.list));
-            Remotedev.send('AddItem', { label: label });
+            RemoteDev.send('AddItem', this.list);
         },
         onRemoveItem: function(itemKey) {
             this.updateList(_.filter(this.list,function(item){
                 return item.key!==itemKey;
             }));
-            Remotedev.send('RemoveItem', { itemKey: itemKey });
+            RemoteDev.send('RemoveItem', this.list);
         },
         onToggleItem: function(itemKey) {
             var foundItem = getItemByKey(this.list,itemKey);
@@ -44,20 +44,20 @@
                 foundItem.isComplete = !foundItem.isComplete;
                 this.updateList(this.list);
             }
-            Remotedev.send('ToggleItem', { itemKey: itemKey });
+            RemoteDev.send('ToggleItem', this.list);
         },
         onToggleAllItems: function(checked) {
             this.updateList(_.map(this.list, function(item) {
                 item.isComplete = checked;
                 return item;
             }));
-            Remotedev.send('ToggleItem', { checked: checked });
+            RemoteDev.send('ToggleItem', this.list);
         },
         onClearCompleted: function() {
             this.updateList(_.filter(this.list, function(item) {
                 return !item.isComplete;
             }));
-            Remotedev.send('ClearCompleted');
+            RemoteDev.send('ClearCompleted', this.list);
         },
         // called whenever we change a list. normally this would mean a database API call
         updateList: function(list){
@@ -65,7 +65,6 @@
             // if we used a real database, we would likely do the below in a callback
             this.list = list;
             this.trigger(list); // sends the updated list to all listening components (TodoApp)
-            Remotedev.send('ClearCompleted', { list: list });
         },
         // this will be called by all listening components as they register their listeners
         getInitialState: function() {
@@ -85,7 +84,11 @@
                     return item;
                 });
             }
-            Remotedev.init({ list: this.list });
+            // Subscribe to RemoteDev
+            RemoteDev.subscribe(state => {
+                this.updateList(state);
+            });
+            RemoteDev.init(this.list);
             return this.list;
         }
     });
