@@ -7,7 +7,7 @@ module.exports = {
     ]
   },
   output: {
-    library: 'Remotedev',
+    library: 'RemoteDev',
     libraryTarget: 'umd'
   },
   resolve: {
