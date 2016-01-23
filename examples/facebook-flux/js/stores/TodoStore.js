@@ -118,7 +118,7 @@ var TodoStore = assign({}, EventEmitter.prototype, {
 });
 
 // Initial state is {}
-RemoteDev.init({});
+RemoteDev.init({}, { name: 'Facebook Flux' });
 // Subscribe to RemoteDev
 RemoteDev.subscribe(state => {
   _todos = state;

@@ -677,16 +677,24 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var persistedData = _persist2.default.get();
 
-var store = _immutable2.default.fromJS({
+function toImmutable(data) {
+  return _immutable2.default.fromJS(data, function (key, value) {
+    // in case it was a record with an ID
+    if (value.get('id')) return (0, _todoRecord2.default)()(value);
+
+    return _immutable2.default.Iterable.isIndexed(value) ? value.toList() : value.toOrderedMap();
+  });
+}
+var initialSatate = {
   filter: null,
   todos: persistedData ? persistedData : []
-}, function (key, value) {
-  // in case it was a record with an ID
-  if (value.get('id')) return (0, _todoRecord2.default)()(value);
+};
 
-  return _immutable2.default.Iterable.isIndexed(value) ? value.toList() : value.toOrderedMap();
-});
+function dispatch(action) {
+  subject.onNext(action.state);
+}
 
+var store = toImmutable(initialSatate);
 var subject = new _rx2.default.BehaviorSubject(store);
 
 subject.map(function (store) {
@@ -700,7 +708,7 @@ _todo2.default.subjects.add.subscribe(function (text) {
     }));
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'add', state: store });
 });
 
 _todo2.default.subjects.delete.subscribe(function (id) {
@@ -710,7 +718,7 @@ _todo2.default.subjects.delete.subscribe(function (id) {
     });
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'delete', state: store });
 });
 
 _todo2.default.subjects.update.subscribe(function (data) {
@@ -722,7 +730,7 @@ _todo2.default.subjects.update.subscribe(function (data) {
     });
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'update', state: store });
 });
 
 _todo2.default.subjects.toggleEdit.subscribe(function (id) {
@@ -734,7 +742,7 @@ _todo2.default.subjects.toggleEdit.subscribe(function (id) {
     });
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'toggleEdit', state: store });
 });
 
 _todo2.default.subjects.toggleCompleted.subscribe(function (data) {
@@ -746,7 +754,7 @@ _todo2.default.subjects.toggleCompleted.subscribe(function (data) {
     });
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'toggleCompleted', state: store });
 });
 
 _todo2.default.subjects.toggleAll.subscribe(function (allCompleted) {
@@ -756,7 +764,7 @@ _todo2.default.subjects.toggleAll.subscribe(function (allCompleted) {
     });
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'toggleAll', state: store });
 });
 
 _todo2.default.subjects.clearCompleted.subscribe(function () {
@@ -766,7 +774,7 @@ _todo2.default.subjects.clearCompleted.subscribe(function () {
     });
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'clearCompleted', state: store });
 });
 
 _todo2.default.subjects.filter.subscribe(function (filter) {
@@ -774,7 +782,7 @@ _todo2.default.subjects.filter.subscribe(function (filter) {
     return filter;
   });
 
-  subject.onNext(store);
+  dispatch({ type: 'filter', state: store });
 });
 
 exports.default = { subject: subject };

@@ -1,7 +1,6 @@
 import Rx from 'rx';
 import update from 'react-addons-update';
 import Immutable from 'immutable';
-import RemoteDev from 'remotedev';
 
 import todoActions from '../actions/todo';
 import todoRecord from '../utils/todoRecord';
@@ -22,25 +21,17 @@ let initialSatate = {
   filter: null,
   todos: (persistedData) ? persistedData : []
 };
-let store = toImmutable(initialSatate);
-RemoteDev.init(initialSatate);
 
+function dispatch(action) {
+  subject.onNext(action.state);
+}
+
+let store = toImmutable(initialSatate);
 let subject = new Rx.BehaviorSubject(store);
 
 subject.map(store => store.get('todos'))
   .distinctUntilChanged()
   .subscribe(persist.set);
-
-function dispatch(action) {
-  subject.onNext(action.state);
-  RemoteDev.send(action.type, action.state); // Send changes to remote monitor
-}
-
-RemoteDev.subscribe(state => {
-  subject.onNext(toImmutable(state));
-});
-
-// subject.subscribe(data => { RemoteDev.send('', action.state); });
 
 todoActions.subjects.add.subscribe((text) => {
   store = store.updateIn(['todos'], (todos) => {
