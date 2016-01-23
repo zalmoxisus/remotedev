@@ -18,7 +18,10 @@ function handleMessages(message) {
 function connect(options) {
   if (socket) return;
   socket = socketCluster.connect(options);
+}
 
+function watch() {
+  if (channel) return;
   socket.emit('login', 'master', (err, channelName) => {
     if (err) { console.error(err); return; }
     channel = socket.subscribe(channelName);
@@ -62,6 +65,7 @@ export function send(action, state, options) {
 
 export function subscribe(listener, options) {
   start(options);
+  watch();
   listeners.push(listener);
 
   return function unsubscribe() {
