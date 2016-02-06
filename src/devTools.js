@@ -33,6 +33,10 @@ function watch() {
 export function start(options) {
   if (options) {
     instanceName = options.name;
+
+    if (options.port && !options.hostname) {
+      options.hostname = 'localhost';
+    }
   }
   connect(options && options.port ? options : socketOptions);
 }
