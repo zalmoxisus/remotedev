@@ -1,6 +1,6 @@
 {
   "name": "remotedev",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Remote debugging for any flux implementation.",
   "main": "lib/index.js",
   "files": [
