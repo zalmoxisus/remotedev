@@ -53,6 +53,6 @@
   "dependencies": {
     "jsan": "^2.0.4",
     "querystring": "^0.2.0",
-    "socketcluster-client": "^4.1.6"
+    "socketcluster-client": "^4.3.6"
   }
 }
