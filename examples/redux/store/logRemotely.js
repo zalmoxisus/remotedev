@@ -1,9 +1,10 @@
-import { send } from 'remotedev';
+import { connectViaExtension } from 'remotedev';
 
 function logReducer(reducer) {
+  const remotedev = connectViaExtension();
   return (state, action) => {
     const reducedState = reducer(state, action);
-    send(action, reducedState);
+    remotedev.send(action, reducedState);
     return reducedState;
   };
 }
