@@ -14,7 +14,7 @@ function handleMessages(message) {
   }
 }
 
-function connect(options) {
+function connectToServer(options) {
   if (socket) return;
   socket = socketCluster.connect(options);
 }
@@ -37,7 +37,7 @@ export function start(options) {
       options.hostname = 'localhost';
     }
   }
-  connect(options && options.port ? options : socketOptions);
+  connectToServer(options && options.port ? options : socketOptions);
 }
 
 function transformAction(action) {
@@ -84,4 +84,39 @@ export function init(state = {}, options) {
   send(undefined, state, options);
 }
 
-export default { init, send, subscribe };
+export function connect(options = {}) {
+  start(options);
+  return {
+    init: (state, action) => {
+      socket.emit({
+        type: 'INIT',
+        payload: state,
+        action: action || {}
+      });
+    },
+    subscribe: (listener) => {
+      if (!listener) return undefined;
+      listeners.push(listener);
+
+      return function unsubscribe() {
+        const index = listeners.indexOf(listener);
+        listeners.splice(index, 1);
+      };
+    },
+    unsubscribe: (instanceId) => {
+      delete listeners[instanceId];
+    },
+    send: (action, payload) => {
+      if (action) {
+        send(action, payload, options);
+      } else {
+        socket.emit({ type: 'STATE', payload, id: socket.id });
+      }
+    },
+    error: (payload) => {
+      socket.emit({ type: 'ERROR', payload, id: socket.id });
+    }
+  };
+}
+
+export default { init, send, subscribe, connect };
