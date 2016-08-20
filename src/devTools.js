@@ -41,13 +41,17 @@ export function start(options) {
 }
 
 function transformAction(action) {
+  if (action.action) return action;
+  const liftedAction = { timestamp: Date.now() };
   if (typeof action === 'object') {
-    if (!action.timestamp) action.timestamp = Date.now();
-    if (!action.type) action.type = action.id || action.actionType || '';
-    return action;
+    liftedAction.action = action;
+    if (!action.type) liftedAction.action.type = action.id || action.actionType || 'update';
+  } else if (typeof action === 'undefined') {
+    liftedAction.action = 'update';
+  } else {
+    liftedAction.action = { type: action };
   }
-  if (typeof action === 'string') return { type: action, timestamp: Date.now() };
-  return '';
+  return liftedAction;
 }
 
 export function send(action, state, options) {
