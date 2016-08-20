@@ -5,7 +5,6 @@ import { socketOptions } from './constants';
 let instanceName;
 let socket;
 let channel;
-let nextActionId = 1;
 let listeners = [];
 
 function handleMessages(message) {
@@ -58,11 +57,9 @@ export function send(action, state, options) {
       payload: state ? stringify(state) : '',
       action: transformAction(action),
       type: action !== undefined ? 'ACTION' : 'INIT',
-      nextActionId: nextActionId || '',
       id: socket.id,
       name: instanceName
     };
-    nextActionId++;
     socket.emit(socket.id ? 'log' : 'log-noid', message);
   }, 0);
 }
@@ -79,7 +76,6 @@ export function subscribe(listener, options) {
 }
 
 export function init(state = {}, options) {
-  nextActionId = 1;
   start(options);
   send(undefined, state, options);
 }
