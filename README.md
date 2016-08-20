@@ -20,43 +20,48 @@ npm install --save-dev remotedev
 ### Usage
 
 ```js
-// Send initial state to the monitor
-RemoteDev.init({});
+import { connectViaExtension } from 'remotedev';
+// It will try to use Redux DevTools extension first if installed
+// In case you want only remote monitoring use
+// import { connect } from 'remotedev';
 
-// Subscribe to RemoteDev to change state (for time travelling)
-RemoteDev.subscribe(state => {
+// Connect to the monitor
+remotedev = connectViaExtension();
+
+// Subscribe to change state (for time travelling)
+remotedev.subscribe(state => {
   this.setState(state);
 });
 
 // Send changes to the remote monitor
-this.on('afterEach', action => {
-  RemoteDev.send(action, this.state);
-});
+remotedev.send(action, state);
 ```
 
 See [the examples for different flux architectures](https://github.com/zalmoxisus/remotedev/tree/master/examples).
 
-### Remote monitoring
+### Monitoring
 
-Use one of [our monitor apps](https://github.com/zalmoxisus/remotedev-app) to inspect `action -> state` changes:
-- [web](http://remotedev.io/)
-- [chrome app](https://chrome.google.com/webstore/detail/remotedev/faicmgpfiaijcedapokpbdejaodbelph) (recommended)
-- [electron app](https://github.com/zalmoxisus/remote-redux-devtools/tree/master/install).
+Use one of our monitor apps to inspect and dispatch actions:
+* [web](http://remotedev.io/local)
+* [redux-devtools-extension](https://github.com/zalmoxisus/redux-devtools-extension) - Click "Remote" button (or press [`Cmd+Ctrl+Arrow up`](https://github.com/zalmoxisus/redux-devtools-extension#keyboard-shortcuts)) to open remote monitoring.
+* [react-native-debugger](https://github.com/jhen0409/react-native-debugger) - Electron app, which already includes `remotedev-server`, `remotedev-app` and even React DevTools.
+* [chrome app](https://chrome.google.com/webstore/detail/remotedev/faicmgpfiaijcedapokpbdejaodbelph).
+* [remote-redux-devtools-on-debugger](https://github.com/jhen0409/remote-redux-devtools-on-debugger) - Used in React Native debugger as a dock monitor.
+* [atom-redux-devtools](https://github.com/zalmoxisus/atom-redux-devtools) - Used in Atom editor.
+* [redux-dispatch-cli](https://github.com/jhen0409/redux-dispatch-cli) - A CLI tool for Redux remote dispatch.
 
-The source code is [here](https://github.com/zalmoxisus/remotedev-app).
+Use [remotedev-app](https://github.com/zalmoxisus/remotedev-app) to create your own monitor app.
 
-Also, it can be [used in React Native debugger as a dock monitor](https://github.com/jhen0409/remote-redux-devtools-on-debugger).
-
-### Use locally
+### Communicate via local server
 
 In order to make it simple to use, by default, the module and the monitor app communicate via [remotedev.io](http://remotedev.io) server. Use [remotedev-server](https://github.com/zalmoxisus/remotedev-server) cli to run it locally in order to make the connection faster and not to require an internet connection.
-
-Also, we'll add later the ability to be used with [redux-devtools-extension](https://github.com/zalmoxisus/redux-devtools-extension), so there wouldn't be any server necessary for local deployment of web apps.   
-
-### Limitations
-
-- **Not ready for production yet**, use it only for development.
-- The app and the monitor should be under the same external IP address (will remove this restriction later).
+You can import it in your `server.js` script and start remotedev server together with your development server:
+```js
+var remotedev = require('remotedev-server');
+remotedev({ hostname: 'localhost', port: 8000 });
+```
+See [remotedev-server](https://github.com/zalmoxisus/remotedev-server) repository for more details.
+For React Native you can use [react-native-debugger](https://github.com/jhen0409/react-native-debugger) or [remote-redux-devtools-on-debugger](https://github.com/jhen0409/remote-redux-devtools-on-debugger), which already include `remotedev-server`.
 
 ### License
 
