@@ -119,4 +119,9 @@ export function connect(options = {}) {
   };
 }
 
-export default { init, send, subscribe, connect };
+export function connectViaExtension(options) {
+  if (typeof window === 'undefined' || !window.devToolsExtension) return connect(options);
+  return window.devToolsExtension.connect(options);
+}
+
+export default { init, send, subscribe, connect, connectViaExtension };
