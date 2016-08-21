@@ -7,13 +7,15 @@ let socket;
 let channel;
 let listeners = [];
 
-function handleMessages(message) {
+export function extractState(message) {
   if (message.type === 'DISPATCH' && message.state) {
-    const parsedState = parse(message.state);
-    listeners.forEach(listener => listener(parsedState));
+    return parse(message.state);
   }
 }
 
+function handleMessages(message) {
+  if (!message.payload) message.payload = message.action;
+  listeners.forEach(listener => listener(message));
 }
 
 function watch() {

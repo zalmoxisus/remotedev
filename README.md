@@ -20,17 +20,20 @@ npm install --save-dev remotedev
 ### Usage
 
 ```js
-import { connectViaExtension } from 'remotedev';
+import { connectViaExtension, extractState } from 'remotedev';
 // It will try to use Redux DevTools extension first if installed
-// In case you want only remote monitoring use
-// import { connect } from 'remotedev';
+// In case you want only remote monitoring use `connect`:
+// import { connect, extractState } from 'remotedev';
 
 // Connect to the monitor
 remotedev = connectViaExtension();
 
-// Subscribe to change state (for time travelling)
-remotedev.subscribe(state => {
-  this.setState(state);
+// Subscribe to change state (if need more than just logging)
+remotedev.subscribe(message => {
+  // Helper when only time travelling needed
+  extractState(message, state => {
+    this.setState(state);
+  });
 });
 
 // Send changes to the remote monitor
