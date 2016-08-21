@@ -1,6 +1,6 @@
 import { stringify, parse } from 'jsan';
 import socketCluster from 'socketcluster-client';
-import { socketOptions } from './constants';
+import { defaultSocketOptions } from './constants';
 
 let instanceName;
 let socket;
@@ -14,19 +14,30 @@ function handleMessages(message) {
   }
 }
 
-function connectToServer(options) {
-  if (socket) return;
-  socket = socketCluster.connect(options);
 }
 
 function watch() {
   if (channel) return;
   socket.emit('login', 'master', (err, channelName) => {
-    if (err) { console.error(err); return; }
+    if (err) { console.warn(err); return; }
     channel = socket.subscribe(channelName);
     channel.watch(handleMessages);
     socket.on(channelName, handleMessages);
   });
+}
+
+function connectToServer(options) {
+  if (socket) return;
+  let socketOptions;
+  if (options.port) {
+    socketOptions = {
+      port: options.port,
+      hostname: options.hostname || 'localhost',
+      secure: !!options.secure
+    };
+  } else socketOptions = defaultSocketOptions;
+  socket = socketCluster.connect(socketOptions);
+  watch();
 }
 
 export function start(options) {
@@ -37,7 +48,7 @@ export function start(options) {
       options.hostname = 'localhost';
     }
   }
-  connectToServer(options && options.port ? options : socketOptions);
+  connectToServer(options);
 }
 
 function transformAction(action) {
@@ -54,13 +65,13 @@ function transformAction(action) {
   return liftedAction;
 }
 
-export function send(action, state, options) {
+export function send(action, state, options, type) {
   start(options);
   setTimeout(() => {
     const message = {
       payload: state ? stringify(state) : '',
-      action: transformAction(action),
-      type: action !== undefined ? 'ACTION' : 'INIT',
+      action: type === 'INIT' ? action : transformAction(action),
+      type: type || 'ACTION',
       id: socket.id,
       name: instanceName
     };
@@ -70,7 +81,6 @@ export function send(action, state, options) {
 
 export function subscribe(listener, options) {
   start(options);
-  watch();
   listeners.push(listener);
 
   return function unsubscribe() {
@@ -81,18 +91,14 @@ export function subscribe(listener, options) {
 
 export function init(state = {}, options) {
   start(options);
-  send(undefined, state, options);
+  send(undefined, state, options, 'INIT');
 }
 
 export function connect(options = {}) {
   start(options);
   return {
     init: (state, action) => {
-      socket.emit({
-        type: 'INIT',
-        payload: state,
-        action: action || {}
-      });
+      send(action || {}, state, options, 'INIT');
     },
     subscribe: (listener) => {
       if (!listener) return undefined;
@@ -110,7 +116,7 @@ export function connect(options = {}) {
       if (action) {
         send(action, payload, options);
       } else {
-        socket.emit({ type: 'STATE', payload, id: socket.id });
+        send(undefined, payload, options, 'STATE');
       }
     },
     error: (payload) => {

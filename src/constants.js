@@ -1,5 +1,5 @@
-export const socketOptions = {
-  protocol: 'http',
+export const defaultSocketOptions = {
+  secure: false,
   hostname: 'remotedev.io',
   port: 80,
   autoReconnect: true,
