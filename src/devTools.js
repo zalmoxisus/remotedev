@@ -128,7 +128,9 @@ export function connect(options = {}) {
 }
 
 export function connectViaExtension(options) {
-  if (typeof window === 'undefined' || !window.devToolsExtension) return connect(options);
+  if (options && options.remote || typeof window === 'undefined' || !window.devToolsExtension) {
+    return connect(options);
+  }
   return window.devToolsExtension.connect(options);
 }
 
