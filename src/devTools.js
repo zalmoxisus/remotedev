@@ -2,7 +2,6 @@ import { stringify, parse } from 'jsan';
 import socketCluster from 'socketcluster-client';
 import { defaultSocketOptions } from './constants';
 
-let instanceName;
 let socket;
 let channel;
 let listeners = [];
@@ -11,6 +10,10 @@ export function extractState(message) {
   if (message.type === 'DISPATCH' && message.state) {
     return parse(message.state);
   }
+}
+
+export function generateId(instanceId) {
+  return instanceId || Math.random().toString(36).substr(2);
 }
 
 function handleMessages(message) {
@@ -44,8 +47,6 @@ function connectToServer(options) {
 
 export function start(options) {
   if (options) {
-    instanceName = options.name;
-
     if (options.port && !options.hostname) {
       options.hostname = 'localhost';
     }
@@ -75,8 +76,9 @@ export function send(action, state, options, type) {
       action: type === 'INIT' ? action : transformAction(action),
       type: type || 'ACTION',
       id: socket.id,
-      name: instanceName
+      name: options.name
     };
+    if (options.instanceId) message.instanceId = options.instanceId;
     socket.emit(socket.id ? 'log' : 'log-noid', message);
   }, 0);
 }
@@ -97,6 +99,7 @@ export function init(state = {}, options) {
 }
 
 export function connect(options = {}) {
+  options.instanceId = generateId(options.instanceId);
   start(options);
   return {
     init: (state, action) => {
