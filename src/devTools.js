@@ -73,7 +73,7 @@ export function send(action, state, options, type) {
   setTimeout(() => {
     const message = {
       payload: state ? stringify(state) : '',
-      action: type === 'INIT' ? action : transformAction(action),
+      action: type === 'ACTION' ? transformAction(action) : action,
       type: type || 'ACTION',
       id: socket.id,
       name: options.name
