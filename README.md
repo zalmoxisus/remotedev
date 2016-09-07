@@ -14,7 +14,7 @@ npm install --save-dev remotedev
 
 ##### CDN
 ```
-<script src="https://npmcdn.com/remotedev/dist/remotedev.min.js"></script>
+<script src="https://unpkg.com/remotedev/dist/remotedev.min.js"></script>
 ```
 
 ### Usage
