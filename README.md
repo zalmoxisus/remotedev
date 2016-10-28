@@ -14,7 +14,7 @@ npm install --save-dev remotedev
 
 ##### CDN
 ```
-<script src="https://npmcdn.com/remotedev/dist/remotedev.min.js"></script>
+<script src="https://unpkg.com/remotedev/dist/remotedev.min.js"></script>
 ```
 
 ### Usage
@@ -31,9 +31,8 @@ remotedev = connectViaExtension();
 // Subscribe to change state (if need more than just logging)
 remotedev.subscribe(message => {
   // Helper when only time travelling needed
-  extractState(message, state => {
-    this.setState(state);
-  });
+  const state = extractState(message);
+  this.setState(state);
 });
 
 // Send changes to the remote monitor
