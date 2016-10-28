@@ -4,27 +4,29 @@ import { defaultSocketOptions } from './constants';
 
 let socket;
 let channel;
-let listeners = [];
+const listeners = {};
 
 export function extractState(message) {
-  if (message.type === 'DISPATCH' && message.state) {
-    return parse(message.state);
-  }
+  return message.state ? parse(message.state) : undefined;
 }
 
-export function generateId(instanceId) {
-  return instanceId || Math.random().toString(36).substr(2);
+export function generateId() {
+  return Math.random().toString(36).substr(2);
 }
 
 function handleMessages(message) {
   if (!message.payload) message.payload = message.action;
-  listeners.forEach(listener => listener(message));
+  Object.keys(listeners).forEach(id => {
+    if (message.instanceId && id !== message.instanceId) return;
+    if (typeof listeners[id] === 'function') listeners[id](message);
+    else listeners[id].forEach(fn => { fn(message); });
+  });
 }
 
 function watch() {
   if (channel) return;
   socket.emit('login', 'master', (err, channelName) => {
-    if (err) { console.warn(err); return; }
+    if (err) { console.log(err); return; }
     channel = socket.subscribe(channelName);
     channel.watch(handleMessages);
     socket.on(channelName, handleMessages);
@@ -68,64 +70,50 @@ function transformAction(action) {
   return liftedAction;
 }
 
-export function send(action, state, options, type) {
+export function send(action, state, options, type, instanceId) {
   start(options);
   setTimeout(() => {
     const message = {
       payload: state ? stringify(state) : '',
-      action: type === 'ACTION' ? transformAction(action) : action,
+      action: type === 'ACTION' ? stringify(transformAction(action)) : action,
       type: type || 'ACTION',
       id: socket.id,
+      instanceId,
       name: options.name
     };
-    if (options.instanceId) message.instanceId = options.instanceId;
     socket.emit(socket.id ? 'log' : 'log-noid', message);
   }, 0);
 }
 
-export function subscribe(listener, options) {
-  start(options);
-  listeners.push(listener);
-
-  return function unsubscribe() {
-    const index = listeners.indexOf(listener);
-    listeners.splice(index, 1);
-  };
-}
-
-export function init(state = {}, options) {
-  start(options);
-  send(undefined, state, options, 'INIT');
-}
-
 export function connect(options = {}) {
-  options.instanceId = generateId(options.instanceId);
+  const id = generateId(options.instanceId);
   start(options);
   return {
     init: (state, action) => {
-      send(action || {}, state, options, 'INIT');
+      send(action || {}, state, options, 'INIT', id);
     },
     subscribe: (listener) => {
       if (!listener) return undefined;
-      listeners.push(listener);
+      if (!listeners[id]) listeners[id] = [];
+      listeners[id].push(listener);
 
       return function unsubscribe() {
-        const index = listeners.indexOf(listener);
-        listeners.splice(index, 1);
+        const index = listeners[id].indexOf(listener);
+        listeners[id].splice(index, 1);
       };
     },
-    unsubscribe: (instanceId) => {
-      delete listeners[instanceId];
+    unsubscribe: () => {
+      delete listeners[id];
     },
     send: (action, payload) => {
       if (action) {
-        send(action, payload, options);
+        send(action, payload, options, 'ACTION', id);
       } else {
-        send(undefined, payload, options, 'STATE');
+        send(undefined, payload, options, 'STATE', id);
       }
     },
     error: (payload) => {
-      socket.emit({ type: 'ERROR', payload, id: socket.id });
+      socket.emit({ type: 'ERROR', payload, id: socket.id, instanceId: id });
     }
   };
 }
@@ -137,4 +125,4 @@ export function connectViaExtension(options) {
   return window.devToolsExtension.connect(options);
 }
 
-export default { init, send, subscribe, connect, connectViaExtension };
+export default { connect, connectViaExtension, send, extractState, generateId };
