@@ -56,14 +56,16 @@ export function start(options) {
   connectToServer(options);
 }
 
-function transformAction(action) {
+function transformAction(action, config) {
   if (action.action) return action;
   const liftedAction = { timestamp: Date.now() };
-  if (typeof action === 'object') {
-    liftedAction.action = action;
-    if (!action.type) liftedAction.action.type = action.id || action.actionType || 'update';
-  } else if (typeof action === 'undefined') {
-    liftedAction.action = 'update';
+  if (action) {
+    if (config.getActionType) liftedAction.action = config.getActionType(action);
+    else {
+      if (typeof action === 'string') liftedAction.action = { type: action };
+      else if (!action.type) liftedAction.action = { type: 'update' };
+      else liftedAction.action = { action };
+    }
   } else {
     liftedAction.action = { type: action };
   }
@@ -75,7 +77,7 @@ export function send(action, state, options, type, instanceId) {
   setTimeout(() => {
     const message = {
       payload: state ? stringify(state) : '',
-      action: type === 'ACTION' ? stringify(transformAction(action)) : action,
+      action: type === 'ACTION' ? stringify(transformAction(action, options)) : action,
       type: type || 'ACTION',
       id: socket.id,
       instanceId,
