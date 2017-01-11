@@ -7,7 +7,9 @@ let channel;
 const listeners = {};
 
 export function extractState(message) {
-  return message && message.state ? parse(message.state) : undefined;
+  if (!message || !message.state) return undefined;
+  if (typeof message.state === 'string') return parse(message.state);
+  return message.state;
 }
 
 export function generateId() {
