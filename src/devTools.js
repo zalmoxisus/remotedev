@@ -66,7 +66,7 @@ function transformAction(action, config) {
     else {
       if (typeof action === 'string') liftedAction.action = { type: action };
       else if (!action.type) liftedAction.action = { type: 'update' };
-      else liftedAction.action = { action };
+      else liftedAction.action = action;
     }
   } else {
     liftedAction.action = { type: action };
