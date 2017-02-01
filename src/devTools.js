@@ -1,5 +1,6 @@
 import { stringify, parse } from 'jsan';
 import socketCluster from 'socketcluster-client';
+import getHostForRN from 'rn-host-detect';
 import { defaultSocketOptions } from './constants';
 
 let socket;
@@ -41,7 +42,7 @@ function connectToServer(options) {
   if (options.port) {
     socketOptions = {
       port: options.port,
-      hostname: options.hostname || 'localhost',
+      hostname: getHostForRN(options.hostname || 'localhost'),
       secure: !!options.secure
     };
   } else socketOptions = defaultSocketOptions;
