@@ -46,7 +46,7 @@ function connectToServer(options) {
       secure: !!options.secure
     };
   } else socketOptions = defaultSocketOptions;
-  socket = socketCluster.connect(socketOptions);
+  socket = socketCluster.create(socketOptions);
   watch();
 }
 
