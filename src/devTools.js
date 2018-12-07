@@ -124,10 +124,10 @@ export function connect(options = {}) {
 }
 
 export function connectViaExtension(options) {
-  if (options && options.remote || typeof window === 'undefined' || !window.devToolsExtension) {
+  if (options && options.remote || typeof window === 'undefined' || !window.__REDUX_DEVTOOLS_EXTENSION__) {
     return connect(options);
   }
-  return window.devToolsExtension.connect(options);
+  return window.__REDUX_DEVTOOLS_EXTENSION__.connect(options);
 }
 
 export default { connect, connectViaExtension, send, extractState, generateId };
