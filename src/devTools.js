@@ -47,6 +47,9 @@ function connectToServer(options) {
     };
   } else socketOptions = defaultSocketOptions;
   socket = socketCluster.create(socketOptions);
+  socket.on('error', err => {
+    console.error("Error in removedev-socket", err);
+  });
   watch();
 }
 
