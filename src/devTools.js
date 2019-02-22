@@ -29,7 +29,7 @@ function handleMessages(message) {
 function watch(options) {
   if (channel) return;
   socket.emit('login', 'master', (err, channelName) => {
-    if (err) { 
+    if (err) {
       if (options.minimalLog) {
         console.warn("removedev-socket, 'login' was cancelled.");
       } else {
@@ -92,15 +92,17 @@ function transformAction(action, config) {
 export function send(action, state, options, type, instanceId) {
   start(options);
   setTimeout(() => {
-    const message = {
-      payload: state ? stringify(state) : '',
-      action: type === 'ACTION' ? stringify(transformAction(action, options)) : action,
-      type: type || 'ACTION',
-      id: socket.id,
-      instanceId,
-      name: options.name
-    };
-    socket.emit(socket.id ? 'log' : 'log-noid', message);
+    if (socket) {
+      const message = {
+        payload: state ? stringify(state) : '',
+        action: type === 'ACTION' ? stringify(transformAction(action, options)) : action,
+        type: type || 'ACTION',
+        id: socket.id,
+        instanceId,
+        name: options.name
+      };
+      socket.emit(socket.id ? 'log' : 'log-noid', message);
+    }
   }, 0);
 }
 
@@ -132,7 +134,15 @@ export function connect(options = {}) {
       }
     },
     error: (payload) => {
-      socket.emit({ type: 'ERROR', payload, id: socket.id, instanceId: id });
+      if (socket) {
+        socket.emit({ type: 'ERROR', payload, id: socket.id, instanceId: id });
+      }
+    },
+    destroy: () => {
+      if (socket) {
+        socket.destroy();
+        socket = undefined;
+      }
     }
   };
 }
