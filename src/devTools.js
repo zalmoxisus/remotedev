@@ -26,10 +26,17 @@ function handleMessages(message) {
   });
 }
 
-function watch() {
+function watch(options) {
   if (channel) return;
   socket.emit('login', 'master', (err, channelName) => {
-    if (err) { console.log(err); return; }
+    if (err) { 
+      if (options.minimalLog) {
+        console.warn('removedev-socket, "login" was cancelled.');
+      } else {
+        console.warn('removedev-socket, "login" was cancelled.', err);
+      }
+      return;
+    }
     channel = socket.subscribe(channelName);
     channel.watch(handleMessages);
     socket.on(channelName, handleMessages);
@@ -47,7 +54,14 @@ function connectToServer(options) {
     };
   } else socketOptions = defaultSocketOptions;
   socket = socketCluster.create(socketOptions);
-  watch();
+  socket.on('error', err => {
+    if (options.minimalLog) {
+      console.warn('Error in removedev-socket');
+    } else {
+      console.warn('Error in removedev-socket', err);
+    }
+  });
+  watch(options);
 }
 
 export function start(options) {
