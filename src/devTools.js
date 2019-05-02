@@ -31,9 +31,9 @@ function watch(options) {
   socket.emit('login', 'master', (err, channelName) => {
     if (err) {
       if (options.minimalLog) {
-        console.warn("removedev-socket, 'login' was cancelled.");
+        console.warn('removedev-socket, "login" was cancelled.');
       } else {
-        console.warn("removedev-socket, 'login' was cancelled." , err);
+        console.warn('removedev-socket, "login" was cancelled.', err);
       }
       return;
     }
