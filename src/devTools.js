@@ -56,9 +56,9 @@ function connectToServer(options) {
   socket = socketCluster.create(socketOptions);
   socket.on('error', err => {
     if (options.minimalLog) {
-      console.warn("Error in removedev-socket");
+      console.warn('Error in removedev-socket');
     } else {
-      console.warn("Error in removedev-socket", err);
+      console.warn('Error in removedev-socket', err);
     }
   });
   watch(options);
