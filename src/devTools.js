@@ -31,9 +31,9 @@ function watch(options) {
   socket.emit('login', 'master', (err, channelName) => {
     if (err) { 
       if (options.minimalLog) {
-        console.warn("removedev-socket, 'login' was cancelled.");
+        console.warn('removedev-socket, "login" was cancelled.');
       } else {
-        console.warn("removedev-socket, 'login' was cancelled." , err);
+        console.warn('removedev-socket, "login" was cancelled.', err);
       }
       return;
     }
@@ -56,9 +56,9 @@ function connectToServer(options) {
   socket = socketCluster.create(socketOptions);
   socket.on('error', err => {
     if (options.minimalLog) {
-      console.warn("Error in removedev-socket");
+      console.warn('Error in removedev-socket');
     } else {
-      console.warn("Error in removedev-socket", err);
+      console.warn('Error in removedev-socket', err);
     }
   });
   watch(options);
