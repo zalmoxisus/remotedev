@@ -15,7 +15,7 @@
     "immutable": "^3.7.4",
     "node-uuid": "^1.4.3",
     "normalize.css": "~3.0.3",
-    "react": "~0.13.1",
+    "react": "~16.13.1",
     "react-bootstrap": "^0.23.7"
   },
   "devDependencies": {
